@@ -1,4 +1,4 @@
-package cn.yong.gateway.session.handlers;
+package cn.yong.gateway.socket.handlers;
 
 import cn.yong.gateway.bind.IGenericReference;
 import cn.yong.gateway.session.BaseHandler;

@@ -1,9 +1,10 @@
 package cn.yong.gateway.bind;
 
+import cn.yong.gateway.mapping.HttpStatement;
+import cn.yong.gateway.session.GatewaySession;
 import net.sf.cglib.core.Signature;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.InterfaceMaker;
-import org.apache.dubbo.rpc.service.GenericService;
 import org.objectweb.asm.Type;
 
 import java.util.Map;
@@ -15,30 +16,28 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 2022/10/30
  * <p> 在代理工厂创建对象的实现类中，首先使用 CGLIB 给 RPC 的绑定接口，创建出一个接口出来。并实现我们定义的 IGenericReference 接口和创建的接口，到代理实现类上。
  */
-public class GenericReferenceProxyFactory {
-    /**
-     * RPC 泛化调用服务
-     */
-    private final GenericService genericService;
+public class MapperProxyFactory {
+    private String uri;
     /**
      * 统一泛化调用接口缓存
      */
     private final Map<String, IGenericReference> genericReferenceCache = new ConcurrentHashMap<>();
 
-    public GenericReferenceProxyFactory(GenericService genericService) {
-        this.genericService = genericService;
+    public MapperProxyFactory(String uri) {
+        this.uri = uri;
     }
 
     /**
      * 创建新实例
      */
-    public IGenericReference newInstance(String method) {
-        return genericReferenceCache.computeIfAbsent(method, k -> {
+    public IGenericReference newInstance(GatewaySession gatewaySession) {
+        return genericReferenceCache.computeIfAbsent(uri, k -> {
+            HttpStatement httpStatement = gatewaySession.getConfiguration().getHttpStatement(uri);
             // 泛化调用
-            GenericReferenceProxy genericReferenceProxy = new GenericReferenceProxy(genericService, method);
+            MapperProxy genericReferenceProxy = new MapperProxy(gatewaySession, uri);
             // 创建接口
             InterfaceMaker interfaceMaker = new InterfaceMaker();
-            interfaceMaker.add(new Signature(method, Type.getType(String.class), new Type[]{Type.getType(String.class)}), null);
+            interfaceMaker.add(new Signature(httpStatement.getMethodName(), Type.getType(String.class), new Type[]{Type.getType(String.class)}), null);
             Class interfaceClass = interfaceMaker.create();
             // 代理对象
             Enhancer enhancer = new Enhancer();

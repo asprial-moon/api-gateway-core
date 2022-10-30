@@ -1,6 +1,6 @@
 package cn.yong.gateway.session;
 
-import cn.yong.gateway.session.handlers.SessionServerHandler;
+import cn.yong.gateway.socket.handlers.SessionServerHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;

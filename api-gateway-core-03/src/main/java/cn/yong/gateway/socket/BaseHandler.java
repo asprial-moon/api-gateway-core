@@ -1,4 +1,4 @@
-package cn.yong.gateway.session;
+package cn.yong.gateway.socket;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;

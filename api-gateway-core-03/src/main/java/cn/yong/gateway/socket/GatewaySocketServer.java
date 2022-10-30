@@ -1,5 +1,6 @@
-package cn.yong.gateway.session;
+package cn.yong.gateway.socket;
 
+import cn.yong.gateway.session.defaults.DefaultGatewaySessionFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -22,17 +23,17 @@ import java.util.concurrent.Callable;
  *     <li> 当这些信息创建完成，绑定端口启动服务即可
  * </ul>
  */
-public class SessionServer implements Callable<Channel> {
-    private final Logger logger = LoggerFactory.getLogger(SessionServer.class);
+public class GatewaySocketServer implements Callable<Channel> {
+    private final Logger logger = LoggerFactory.getLogger(GatewaySocketServer.class);
 
-    private final EventLoopGroup boss = new NioEventLoopGroup();
+    private final EventLoopGroup boss = new NioEventLoopGroup(1);
     private final EventLoopGroup work = new NioEventLoopGroup();
     private Channel channel;
 
-    private Configuration configuration;
+    private DefaultGatewaySessionFactory gatewaySessionFactory;
 
-    public SessionServer(Configuration configuration) {
-        this.configuration = configuration;
+    public GatewaySocketServer(DefaultGatewaySessionFactory gatewaySessionFactory) {
+        this.gatewaySessionFactory = gatewaySessionFactory;
     }
 
     @Override
@@ -43,7 +44,7 @@ public class SessionServer implements Callable<Channel> {
             bootstrap.group(boss, work)
                     .channel(NioServerSocketChannel.class)
                     .option(ChannelOption.SO_BACKLOG, 128)
-                    .childHandler(new SessionChannelInitializer(configuration));
+                    .childHandler(new GatewayChannelInitializer(gatewaySessionFactory));
 
             channelFuture = bootstrap.bind(new InetSocketAddress(7397)).syncUninterruptibly();
             this.channel = channelFuture.channel();

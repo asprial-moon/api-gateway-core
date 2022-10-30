@@ -1,6 +1,7 @@
-package cn.yong.gateway.session;
+package cn.yong.gateway.socket;
 
-import cn.yong.gateway.session.handlers.SessionServerHandler;
+import cn.yong.gateway.session.defaults.DefaultGatewaySessionFactory;
+import cn.yong.gateway.socket.handlers.GatewayServerHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -15,14 +16,15 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
  * <ul>
  *     <li> {@link HttpRequestDecoder}、{@link HttpResponseEncoder}是Netty本身提供的HTTP编辑器，这部分涉及到网络通信中的通信协议和半包粘包处理
  *     <li> {@link HttpObjectAggregator} 用于处理除了GET请求外的POST请求时候的对象信息，否则只有上面的信息，是拿不到POST请求的。*这就很像不断的在管道中添加板子，不同的板子处理不同的功能*
- *     <li> 最后一个{@link SessionServerHandler} 是我们自己实现的会话处理，用于拿到HTTP网络请求后，处理我们自己需要的业务处理
+ *     <li> 最后一个{@link GatewayServerHandler} 是我们自己实现的会话处理，用于拿到HTTP网络请求后，处理我们自己需要的业务处理
  * </ul>
  */
-public class SessionChannelInitializer extends ChannelInitializer<SocketChannel> {
-    private final Configuration configuration;
+public class GatewayChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    public SessionChannelInitializer(Configuration configuration) {
-        this.configuration = configuration;
+    private final DefaultGatewaySessionFactory gatewaySessionFactory;
+
+    public GatewayChannelInitializer(DefaultGatewaySessionFactory gatewaySessionFactory) {
+        this.gatewaySessionFactory = gatewaySessionFactory;
     }
 
     @Override
@@ -31,6 +33,6 @@ public class SessionChannelInitializer extends ChannelInitializer<SocketChannel>
         pipeline.addLast(new HttpRequestDecoder());
         pipeline.addLast(new HttpResponseEncoder());
         pipeline.addLast(new HttpObjectAggregator(1024 * 1024));
-        pipeline.addLast(new SessionServerHandler(configuration));
+        pipeline.addLast(new GatewayServerHandler(gatewaySessionFactory));
     }
 }
