@@ -9,9 +9,9 @@ import cn.yong.gateway.bind.IGenericReference;
  */
 public interface GatewaySession {
 
-    Object get(String uri, Object parameter);
+    Object get(String methodName, Object parameter);
 
-    IGenericReference getMapper(String uri);
+    IGenericReference getMapper();
 
     Configuration getConfiguration();
 }

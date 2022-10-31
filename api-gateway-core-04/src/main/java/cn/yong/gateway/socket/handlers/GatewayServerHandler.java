@@ -39,8 +39,8 @@ public class GatewayServerHandler extends BaseHandler<FullHttpRequest> {
         String uri = request.uri();
         if (uri.equals("/favicon.ico")) return;
 
-        GatewaySession gatewaySession = gatewaySessionFactory.openSession();
-        IGenericReference reference = gatewaySession.getMapper(uri);
+        GatewaySession gatewaySession = gatewaySessionFactory.openSession(uri);
+        IGenericReference reference = gatewaySession.getMapper();
         String result = reference.$invoke("大勇") + " " + System.currentTimeMillis();
 
         // 返回信息处理

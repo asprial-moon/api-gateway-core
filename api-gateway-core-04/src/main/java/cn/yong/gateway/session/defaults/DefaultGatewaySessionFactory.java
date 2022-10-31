@@ -1,5 +1,7 @@
 package cn.yong.gateway.session.defaults;
 
+import cn.yong.gateway.datasource.DataSource;
+import cn.yong.gateway.datasource.unpooled.UnpooledDataSourceFactory;
 import cn.yong.gateway.session.Configuration;
 import cn.yong.gateway.session.GatewaySession;
 import cn.yong.gateway.session.GatewaySessionFactory;
@@ -22,7 +24,11 @@ public class DefaultGatewaySessionFactory implements GatewaySessionFactory {
     }
 
     @Override
-    public GatewaySession openSession() {
-        return new DefaultGatewaySession(configuration);
+    public GatewaySession openSession(String uri) {
+        // 获取数据源连接信息：这里把Dubbo、HTTP 抽象为一种连接资源
+        UnpooledDataSourceFactory dataSourceFactory = new UnpooledDataSourceFactory();
+        dataSourceFactory.setProperties(configuration, uri);
+        DataSource dataSource = dataSourceFactory.getDataSource();
+        return new DefaultGatewaySession(configuration, uri, dataSource);
     }
 }
