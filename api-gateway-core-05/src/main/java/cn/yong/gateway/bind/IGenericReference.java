@@ -1,5 +1,7 @@
 package cn.yong.gateway.bind;
 
+import java.util.Map;
+
 /**
  * @author Line
  * @desc 统一泛化调用接口
@@ -7,6 +9,6 @@ package cn.yong.gateway.bind;
  */
 public interface IGenericReference {
 
-    String $invoke(String args);
+    String $invoke(Map<String, Object> params);
 
 }

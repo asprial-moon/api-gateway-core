@@ -1,6 +1,5 @@
 package cn.yong.gateway.session;
 
-
 import cn.yong.gateway.bind.IGenericReference;
 import cn.yong.gateway.bind.MapperRegistry;
 import cn.yong.gateway.mapping.HttpStatement;
@@ -21,7 +20,6 @@ import java.util.Map;
 public class Configuration {
 
     private final MapperRegistry mapperRegistry = new MapperRegistry(this);
-
 
     private final Map<String, HttpStatement> httpStatements = new HashMap<>();
 
@@ -57,7 +55,6 @@ public class Configuration {
         registryConfigMap.put("api-gateway-test", registry);
         referenceConfigMap.put("cn.bugstack.gateway.rpc.IActivityBooth", reference);
     }
-
 
     public ApplicationConfig getApplicationConfig(String applicationName) {
         return applicationConfigMap.get(applicationName);

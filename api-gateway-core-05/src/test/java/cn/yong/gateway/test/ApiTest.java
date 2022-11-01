@@ -28,6 +28,7 @@ public class ApiTest {
         HttpStatement httpStatement = new HttpStatement("api-gateway-test",
                 "cn.bugstack.gateway.rpc.IActivityBooth",
                 "sayHi",
+                "java.lang.String",
                 "/wg/activity/sayHi",
                 HttpCommandType.GET);
         configuration.addMapper(httpStatement);

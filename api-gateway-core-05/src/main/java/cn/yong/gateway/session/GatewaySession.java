@@ -2,6 +2,8 @@ package cn.yong.gateway.session;
 
 import cn.yong.gateway.bind.IGenericReference;
 
+import java.util.Map;
+
 /**
  * @author Line
  * @desc 用户处理网关 HTTP 请求
@@ -9,7 +11,12 @@ import cn.yong.gateway.bind.IGenericReference;
  */
 public interface GatewaySession {
 
-    Object get(String methodName, Object parameter);
+    Object get(String methodName, Map<String, Object> params);
+
+    /**
+     * Post请求
+     */
+    Object post(String methodName, Map<String, Object> params);
 
     IGenericReference getMapper();
 

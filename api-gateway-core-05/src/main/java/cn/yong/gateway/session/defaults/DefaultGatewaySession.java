@@ -6,12 +6,15 @@ import cn.yong.gateway.datasource.DataSource;
 import cn.yong.gateway.mapping.HttpStatement;
 import cn.yong.gateway.session.Configuration;
 import cn.yong.gateway.session.GatewaySession;
+import cn.yong.gateway.type.SimpleTypeRegistry;
 import org.apache.dubbo.config.ApplicationConfig;
 import org.apache.dubbo.config.ReferenceConfig;
 import org.apache.dubbo.config.RegistryConfig;
 import org.apache.dubbo.config.bootstrap.DubboBootstrap;
 import org.apache.dubbo.config.utils.ReferenceConfigCache;
 import org.apache.dubbo.rpc.service.GenericService;
+
+import java.util.Map;
 
 /**
  * @author Line
@@ -32,10 +35,27 @@ public class DefaultGatewaySession implements GatewaySession {
     }
 
     @Override
-    public Object get(String methodName, Object parameter) {
+    public Object get(String methodName, Map<String, Object> params) {
         Connection connection = dataSource.getConnection();
+        HttpStatement httpStatement = configuration.getHttpStatement(uri);
+        String parameterType = httpStatement.getParameterType();
 
-        return connection.execute(methodName, new String[]{"java.lang.String"}, new String[]{"name"}, new Object[]{parameter});
+        /**
+         * 调用服务
+         * 封装参数 PS：为什么这样构建参数，可以参考测试案例：cn.bugstack.gateway.test.RPCTest
+         * 01(允许)：java.lang.String
+         * 02(允许)：cn.bugstack.gateway.rpc.dto.XReq
+         * 03(拒绝)：java.lang.String, cn.bugstack.gateway.rpc.dto.XReq —— 不提供多参数方法的处理
+         */
+        return connection.execute(methodName,
+                new String[]{"java.lang.String"},
+                new String[]{"name"},
+                SimpleTypeRegistry.isSimpleType(parameterType) ? params.values().toArray() : new Object[] {params});
+    }
+
+    @Override
+    public Object post(String methodName, Map<String, Object> params) {
+        return get(methodName, params);
     }
 
     @Override
