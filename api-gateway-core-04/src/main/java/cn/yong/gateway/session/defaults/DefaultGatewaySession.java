@@ -35,7 +35,7 @@ public class DefaultGatewaySession implements GatewaySession {
     public Object get(String methodName, Object parameter) {
         Connection connection = dataSource.getConnection();
 
-        return connection.execute(methodName, new String[]{"java.lang.String"}, new String[]{"小傅哥"}, new Object[]{parameter});
+        return connection.execute(methodName, new String[]{"java.lang.String"}, new String[]{"name"}, new Object[]{parameter});
     }
 
     @Override
