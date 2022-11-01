@@ -2,6 +2,7 @@ package cn.yong.gateway.session.defaults;
 
 import cn.yong.gateway.datasource.DataSource;
 import cn.yong.gateway.datasource.unpooled.UnpooledDataSourceFactory;
+import cn.yong.gateway.executor.Executor;
 import cn.yong.gateway.session.Configuration;
 import cn.yong.gateway.session.GatewaySession;
 import cn.yong.gateway.session.GatewaySessionFactory;
@@ -29,6 +30,8 @@ public class DefaultGatewaySessionFactory implements GatewaySessionFactory {
         UnpooledDataSourceFactory dataSourceFactory = new UnpooledDataSourceFactory();
         dataSourceFactory.setProperties(configuration, uri);
         DataSource dataSource = dataSourceFactory.getDataSource();
-        return new DefaultGatewaySession(configuration, uri, dataSource);
+        // 创建执行器
+        Executor executor = configuration.newExecutor(dataSource.getConnection());
+        return new DefaultGatewaySession(configuration, uri, executor);
     }
 }

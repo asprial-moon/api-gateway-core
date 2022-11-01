@@ -2,6 +2,9 @@ package cn.yong.gateway.session;
 
 import cn.yong.gateway.bind.IGenericReference;
 import cn.yong.gateway.bind.MapperRegistry;
+import cn.yong.gateway.datasource.Connection;
+import cn.yong.gateway.executor.Executor;
+import cn.yong.gateway.executor.SimpleExecutor;
 import cn.yong.gateway.mapping.HttpStatement;
 import org.apache.dubbo.config.ApplicationConfig;
 import org.apache.dubbo.config.ReferenceConfig;
@@ -82,5 +85,9 @@ public class Configuration {
 
     public HttpStatement getHttpStatement(String uri) {
         return httpStatements.get(uri);
+    }
+
+    public Executor newExecutor(Connection connection) {
+        return new SimpleExecutor(this, connection);
     }
 }

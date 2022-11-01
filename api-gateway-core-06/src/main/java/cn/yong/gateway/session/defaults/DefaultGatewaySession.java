@@ -3,6 +3,7 @@ package cn.yong.gateway.session.defaults;
 import cn.yong.gateway.bind.IGenericReference;
 import cn.yong.gateway.datasource.Connection;
 import cn.yong.gateway.datasource.DataSource;
+import cn.yong.gateway.executor.Executor;
 import cn.yong.gateway.mapping.HttpStatement;
 import cn.yong.gateway.session.Configuration;
 import cn.yong.gateway.session.GatewaySession;
@@ -26,31 +27,22 @@ public class DefaultGatewaySession implements GatewaySession {
 
     private String uri;
 
-    private DataSource dataSource;
+    private Executor executor;
 
-    public DefaultGatewaySession(Configuration configuration, String uri, DataSource dataSource) {
+    public DefaultGatewaySession(Configuration configuration, String uri, Executor executor) {
         this.configuration = configuration;
         this.uri = uri;
-        this.dataSource = dataSource;
+        this.executor = executor;
     }
 
     @Override
     public Object get(String methodName, Map<String, Object> params) {
-        Connection connection = dataSource.getConnection();
         HttpStatement httpStatement = configuration.getHttpStatement(uri);
-        String parameterType = httpStatement.getParameterType();
-
-        /**
-         * 调用服务
-         * 封装参数 PS：为什么这样构建参数，可以参考测试案例：cn.bugstack.gateway.test.RPCTest
-         * 01(允许)：java.lang.String
-         * 02(允许)：cn.bugstack.gateway.rpc.dto.XReq
-         * 03(拒绝)：java.lang.String, cn.bugstack.gateway.rpc.dto.XReq —— 不提供多参数方法的处理
-         */
-        return connection.execute(methodName,
-                new String[]{"java.lang.String"},
-                new String[]{"name"},
-                SimpleTypeRegistry.isSimpleType(parameterType) ? params.values().toArray() : new Object[] {params});
+        try {
+            return executor.exec(httpStatement, params);
+        } catch (Exception e) {
+            throw new RuntimeException("Error exec get. Cause: " + e);
+        }
     }
 
     @Override
