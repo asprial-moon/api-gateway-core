@@ -1,9 +1,13 @@
 package cn.yong.gateway.socket.handlers;
 
 import cn.yong.gateway.bind.IGenericReference;
+import cn.yong.gateway.mapping.HttpStatement;
+import cn.yong.gateway.session.Configuration;
 import cn.yong.gateway.session.GatewaySession;
 import cn.yong.gateway.session.defaults.DefaultGatewaySessionFactory;
 import cn.yong.gateway.socket.BaseHandler;
+import cn.yong.gateway.socket.agreement.AgreementConstants;
+import cn.yong.gateway.socket.agreement.GatewayResultMessage;
 import cn.yong.gateway.socket.agreement.RequestParser;
 import cn.yong.gateway.socket.agreement.ResponseParser;
 import com.alibaba.fastjson.JSON;
@@ -18,7 +22,7 @@ import java.util.Map;
 
 /**
  * @author Line
- * @desc 会话服务处理器
+ * @desc 网络协议处理器
  * @date 2022/10/29
  * <ul>
  *     <li> {@link DefaultFullHttpResponse} 相当于就是构建HTTP会话所需的协议信息，包括头信息、编码、响应体长度、跨域访问
@@ -29,28 +33,31 @@ public class GatewayServerHandler extends BaseHandler<FullHttpRequest> {
 
     private final Logger logger = LoggerFactory.getLogger(GatewayServerHandler.class);
 
-    private final DefaultGatewaySessionFactory gatewaySessionFactory;
+    private final Configuration configuration;
 
-    public GatewayServerHandler(DefaultGatewaySessionFactory gatewaySessionFactory) {
-        this.gatewaySessionFactory = gatewaySessionFactory;
+    public GatewayServerHandler(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     @Override
     protected void session(ChannelHandlerContext ctx, Channel channel, FullHttpRequest request) {
-        logger.info("网关接收请求 uri: {}  method: {}", request.uri(), request.method());
-        // 1. 解析请求参数
-        RequestParser requestParser = new RequestParser(request);
-        String uri = requestParser.getUri();
-        if (uri == null) return;
-        Map<String, Object> args = new RequestParser(request).parse();
+        logger.info("网关接收请求【请求】 uri: {}  method: {}", request.uri(), request.method());
+        try {
+            // 1. 解析请求参数
+            RequestParser requestParser = new RequestParser(request);
+            String uri = requestParser.getUri();
 
-        // 2. 调用会话服务
-        GatewaySession gatewaySession = gatewaySessionFactory.openSession(uri);
-        IGenericReference reference = gatewaySession.getMapper();
-        Object result = reference.$invoke(args);
+            // 2. 保存信息；HttpStatement、Header=token
+            HttpStatement httpStatement = configuration.getHttpStatement(uri);
+            channel.attr(AgreementConstants.HTTP_STATEMENT).set(httpStatement);
 
-        // 3. 封装返回结果
-        DefaultFullHttpResponse response = new ResponseParser().parse(result);
-        channel.writeAndFlush(response);
+            // 3. 放行服务
+            request.retain();
+            ctx.fireChannelRead(request);
+        } catch (Exception e) {
+            // 4. 封装返回结果
+            DefaultFullHttpResponse response = new ResponseParser().parse(GatewayResultMessage.buildError(AgreementConstants.ResponseCode._500.getCode(), "网关协议调用失败！" + e.getMessage()));
+            channel.writeAndFlush(response);
+        }
     }
 }

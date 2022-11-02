@@ -1,7 +1,10 @@
 package cn.yong.gateway.socket;
 
+import cn.yong.gateway.session.Configuration;
 import cn.yong.gateway.session.defaults.DefaultGatewaySessionFactory;
+import cn.yong.gateway.socket.handlers.AuthorizationHandler;
 import cn.yong.gateway.socket.handlers.GatewayServerHandler;
+import cn.yong.gateway.socket.handlers.ProtocolDataHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
@@ -21,9 +24,12 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
  */
 public class GatewayChannelInitializer extends ChannelInitializer<SocketChannel> {
 
+    private final Configuration configuration;
+
     private final DefaultGatewaySessionFactory gatewaySessionFactory;
 
-    public GatewayChannelInitializer(DefaultGatewaySessionFactory gatewaySessionFactory) {
+    public GatewayChannelInitializer(Configuration configuration, DefaultGatewaySessionFactory gatewaySessionFactory) {
+        this.configuration = configuration;
         this.gatewaySessionFactory = gatewaySessionFactory;
     }
 
@@ -33,6 +39,8 @@ public class GatewayChannelInitializer extends ChannelInitializer<SocketChannel>
         pipeline.addLast(new HttpRequestDecoder());
         pipeline.addLast(new HttpResponseEncoder());
         pipeline.addLast(new HttpObjectAggregator(1024 * 1024));
-        pipeline.addLast(new GatewayServerHandler(gatewaySessionFactory));
+        pipeline.addLast(new GatewayServerHandler(configuration));
+        pipeline.addLast(new AuthorizationHandler(configuration));
+        pipeline.addLast(new ProtocolDataHandler(gatewaySessionFactory));
     }
 }

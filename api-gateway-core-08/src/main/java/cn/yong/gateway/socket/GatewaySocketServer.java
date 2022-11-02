@@ -1,5 +1,6 @@
 package cn.yong.gateway.socket;
 
+import cn.yong.gateway.session.Configuration;
 import cn.yong.gateway.session.defaults.DefaultGatewaySessionFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -30,9 +31,11 @@ public class GatewaySocketServer implements Callable<Channel> {
     private final EventLoopGroup work = new NioEventLoopGroup();
     private Channel channel;
 
+    private final Configuration configuration;
     private DefaultGatewaySessionFactory gatewaySessionFactory;
 
-    public GatewaySocketServer(DefaultGatewaySessionFactory gatewaySessionFactory) {
+    public GatewaySocketServer(Configuration configuration, DefaultGatewaySessionFactory gatewaySessionFactory) {
+        this.configuration = configuration;
         this.gatewaySessionFactory = gatewaySessionFactory;
     }
 
@@ -44,7 +47,7 @@ public class GatewaySocketServer implements Callable<Channel> {
             bootstrap.group(boss, work)
                     .channel(NioServerSocketChannel.class)
                     .option(ChannelOption.SO_BACKLOG, 128)
-                    .childHandler(new GatewayChannelInitializer(gatewaySessionFactory));
+                    .childHandler(new GatewayChannelInitializer(configuration, gatewaySessionFactory));
 
             channelFuture = bootstrap.bind(new InetSocketAddress(7397)).syncUninterruptibly();
             this.channel = channelFuture.channel();

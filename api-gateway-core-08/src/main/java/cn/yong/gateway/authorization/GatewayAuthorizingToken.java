@@ -12,7 +12,7 @@ public class GatewayAuthorizingToken implements AuthenticationToken {
     /**
      * 通信管道ID
      */
-    private String channelId;
+    private String uId;
     /**
      * JSON WEB TOKEN
      */
@@ -21,27 +21,19 @@ public class GatewayAuthorizingToken implements AuthenticationToken {
     public GatewayAuthorizingToken() {
     }
 
-    public GatewayAuthorizingToken(String channelId, String jwt) {
-        this.channelId = channelId;
+    public GatewayAuthorizingToken(String uId, String jwt) {
+        this.uId = uId;
         this.jwt = jwt;
     }
 
     @Override
     public Object getPrincipal() {
-        return channelId;
+        return uId;
     }
 
     @Override
     public Object getCredentials() {
         return this.jwt;
-    }
-
-    public String getChannelId() {
-        return channelId;
-    }
-
-    public void setChannelId(String channelId) {
-        this.channelId = channelId;
     }
 
     public String getJwt() {

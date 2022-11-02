@@ -1,5 +1,7 @@
 package cn.yong.gateway.session;
 
+import cn.yong.gateway.authorization.IAuth;
+import cn.yong.gateway.authorization.auth.AuthService;
 import cn.yong.gateway.bind.IGenericReference;
 import cn.yong.gateway.bind.MapperRegistry;
 import cn.yong.gateway.datasource.Connection;
@@ -25,6 +27,8 @@ public class Configuration {
     private final MapperRegistry mapperRegistry = new MapperRegistry(this);
 
     private final Map<String, HttpStatement> httpStatements = new HashMap<>();
+
+    private final IAuth auth = new AuthService();
 
     /**
      * RPC 应用服务配置项 api-gateway-test
@@ -96,5 +100,9 @@ public class Configuration {
 
     public Executor newExecutor(Connection connection) {
         return new SimpleExecutor(this, connection);
+    }
+
+    public boolean authValidate(String uId, String token) {
+        return auth.validate(uId, token);
     }
 }
