@@ -29,7 +29,7 @@ public class GatewayServerHandler extends BaseHandler<FullHttpRequest> {
 
     private final Logger logger = LoggerFactory.getLogger(GatewayServerHandler.class);
 
-    private DefaultGatewaySessionFactory gatewaySessionFactory;
+    private final DefaultGatewaySessionFactory gatewaySessionFactory;
 
     public GatewayServerHandler(DefaultGatewaySessionFactory gatewaySessionFactory) {
         this.gatewaySessionFactory = gatewaySessionFactory;
@@ -41,8 +41,7 @@ public class GatewayServerHandler extends BaseHandler<FullHttpRequest> {
         // 1. 解析请求参数
         RequestParser requestParser = new RequestParser(request);
         String uri = requestParser.getUri();
-        if (uri == null)
-            return;
+        if (uri == null) return;
         Map<String, Object> args = new RequestParser(request).parse();
 
         // 2. 调用会话服务
