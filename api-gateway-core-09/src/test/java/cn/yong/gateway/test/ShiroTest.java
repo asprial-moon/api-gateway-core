@@ -1,15 +1,9 @@
 package cn.yong.gateway.test;
 
-import cn.yong.gateway.authorization.IAuth;
-import cn.yong.gateway.authorization.JwtUtil;
-import cn.yong.gateway.authorization.auth.AuthService;
+import cn.yong.gateway.core.authorization.IAuth;
+import cn.yong.gateway.core.authorization.JwtUtil;
+import cn.yong.gateway.core.authorization.auth.AuthService;
 import io.jsonwebtoken.Claims;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.config.IniSecurityManagerFactory;
-import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.Factory;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
